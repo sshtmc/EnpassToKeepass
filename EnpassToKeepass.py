@@ -18,7 +18,6 @@ import csv
 
 ''''
 PLEASE CHANGE THIS TXT VALUE TO YOUR TXT FILE
-Below an example file name
 '''
 enpass_export_txt = r"Enpass_2016-11-07_21-31-58.txt"
 
