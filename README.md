@@ -29,3 +29,4 @@ Use the Keepass Generic CSV Importer for the import.
 ## Versions
 Keepass 2.34
 Enpass 5.30
+Python 3
