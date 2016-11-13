@@ -65,13 +65,13 @@ with open('Keepass_Import.csv', 'w') as csvfile:
                     elif "url" in lines[i + checker].lower():
                         url = lines[i + checker][6:].rstrip()
                     elif "Note" in lines[i + checker].lower():
-                        note = lines[i + checker][7:].rstrip()
+                        note = lines[i + checker][7:].rstrip() # todo only returns 1 row, not multiple rows
                     checker += 1
                 row = KeepassRow(title, username, password, url, note)
                 writer.writerow(row.write_row())
 
     except(IndexError):
-        keepass_import_file.close()
+        keepass_import_file.close() # todo - might be incorrect
 
     finally:
         keepass_import_file.close()
