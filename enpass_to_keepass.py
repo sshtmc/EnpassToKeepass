@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
 This script converts the Enpass txt Export to a Keepass CSV file.
 It was tested with Enpass 5.3.0 and Keepass 2.34
@@ -14,36 +16,19 @@ Please make sure that you only have the keywords ("Title", "Username", "Password
 Use the Keepass Generic CSV Importer for the import.
 '''
 
+import sys
 import csv
+enpass_export_txt = glob.glob("Enpass_20*.txt")
 
-''''
-PLEASE CHANGE THIS TXT VALUE TO YOUR TXT FILE
-'''
-enpass_export_txt = r"Enpass_2016-11-07_21-31-58.txt"
+if not enpass_export_txt:
+    print('No Enpass exported file found')
+    sys.exit(1)
 
+keepass_import_file = open(enpass_export_txt[-1], "r")
+print("Opened {}".format(enpass_export_txt[-1]))
 
-class KeepassRow:
-    ''''
-    Returns the Keepass Row for the CSV file.
-
-    '''
-
-    def __init__(self, title, username, password, url, notes):
-        self.title = title
-        self.username = username
-        self.password = password
-        self.url = url
-        self.notes = notes
-
-    def write_row(self):
-        row = ",".join([self.title, self.username, self.password, self.url, self.notes])
-        row = row.split(",")
-        return row
-
-
-keepass_import_file = open(enpass_export_txt, "r")
-
-with open('Keepass_Import.csv', 'w') as csvfile:
+fout = 'enpass_to_keepass_import.csv'
+with open(fout, 'w') as csvfile:
     try:
         writer = csv.writer(csvfile, delimiter=",")
         writer.writerow(["Account", "Login Name", "Password", "Web Site", "Comments"])
@@ -58,20 +43,23 @@ with open('Keepass_Import.csv', 'w') as csvfile:
                 url = ""
                 note = ""
                 while "Title" not in lines[i + checker]:
-                    if "username" in lines[i + checker].lower():
+                    if lines[i + checker].startswith('UserName : '):
                         username = lines[i + checker][11:].rstrip()
-                    elif "password" in lines[i + checker].lower():
+                    elif lines[i + checker].startswith('Password : '):
                         password = lines[i + checker][11:].rstrip()
-                    elif "url" in lines[i + checker].lower():
+                    elif lines[i + checker].startswith('URL : '):
                         url = lines[i + checker][6:].rstrip()
-                    elif "Note" in lines[i + checker].lower():
-                        note = lines[i + checker][7:].rstrip() # todo only returns 1 row, not multiple rows
+                    elif lines[i + checker].startswith('Note : '):
+                        note = lines[i + checker][7:].rstrip()
+                    else:
+                        note += lines[i + checker].rstrip()
                     checker += 1
-                row = KeepassRow(title, username, password, url, note)
-                writer.writerow(row.write_row())
+		writer.writerow([title, username, password, url, note])
 
     except(IndexError):
         keepass_import_file.close() # todo - might be incorrect
 
     finally:
         keepass_import_file.close()
+
+print('Saved output as {}'.format(fout))
